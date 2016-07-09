@@ -1,6 +1,15 @@
 const http = require('http')
 
+function computation() {
+  for (var i = 0; i < 10000; i++) {
+    console.log(i)
+  }
+}
+
+computation()
+
 const server = http.createServer((req, res) => {
+  computation()
   res.end("Hello World")
 })
 

@@ -4,4 +4,4 @@ cd node-perf
 
 npm install
 
-node server.js
+node --perf_basic_prof_only_functions server.js
