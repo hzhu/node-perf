@@ -1,23 +1,55 @@
 ### Overview
-An attempt to do perf analysis on a Node process inside a Docker container (Ubuntu).
+Perf analysis on a Node process inside a Docker container (Ubuntu). Generate a [flame graph](http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html) representing the Node.js stack of functions to see what is most CPU intensive.
 
-Run Docker container & enable CAP_SYS_ADMIN to run `perf`
-`docker run --cap-add=SYS_ADMIN -i -t -p 8080:8080 my-nodejs-app`
+Pulls Ubuntu Docker image. Downloads, install, and builds linux [perf tools](https://en.wikipedia.org/wiki/Perf_(Linux)). Also installs Node.js.
 
-SSH into container
+Copies Node.js program into the Docker container. Runs Node program with the [--perf_basic_prof_only_functions](--perf_basic_prof_only_functions) flag.
+
+### On FlameGraphs
+* A large height of the stack isn't necessiarily bad.
+* A large width of a stack frame indicates large CPU consumption and the might need to be looked into.
+* The colors aren't significant, and are usually picked at random to be warm colors (other meaningful palettes are supported).
+
+### Requirements
+* [Docker](https://docs.docker.com/engine/installation/)
+
+### Getting Started
+1) Build Docker Image
 ```
-docker exec -it <container id>
+docker build -t my-nodejs-app .
 ```
 
-Use this command inside container to perf to generate stack trace (Must beat server with requests during these 30 seconds)
+2) Run Docker container & enable CAP_SYS_ADMIN to run `perf`
 ```
-perf record -F 99 -p `pgrep -n node` -g -- sleep 30
+docker run --cap-add=SYS_ADMIN -i -t -p 8080:8080 my-nodejs-app
 ```
 
-Output Node stack and generate flame graph
+3) Create a new Bash session in the container
 ```
-perf script > out.nodestacks01
+docker exec -it <container id> /bin/bash
+```
+
+4) Run a command and record its profile into perf.data for 30 seconds
+`-p` to record events on existing process id
+`-F 99` profile at this frequency
+```
+sudo perf record -F 99 -p `pgrep -n node` -g -- sleep 30
+```
+
+5) Generate nodestacks file
+```
+perf script > nodestacks
+```
+
+
+6) Make nodestacks file human readable
+```
+sed -i '/\[unknown\]/d' nodestacks
+```
+
+7) Generate FlameGraph
+```
 git clone --depth 1 http://github.com/brendangregg/FlameGraph
 cd FlameGraph
-./stackcollapse-perf.pl < ../out.nodestacks01 | ./flamegraph.pl > ../out.nodestacks01.svg`
+./stackcollapse-perf.pl < ../nodestacks | ./flamegraph.pl --colors js > ../node-flamegraph.svg
 ```
