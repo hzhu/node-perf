@@ -6,8 +6,11 @@ Pulls Ubuntu Docker image. Downloads, install, and builds linux [perf tools](htt
 Copies Node.js program into the Docker container. Runs Node program with the [--perf_basic_prof_only_functions](--perf_basic_prof_only_functions) flag.
 
 ### On FlameGraphs
+<p data-height="378" data-theme-id="light" data-slug-hash="rLYGQN" data-default-tab="result" data-user="hzhu" data-embed-version="2" class="codepen">See the Pen <a href="http://codepen.io/hzhu/pen/rLYGQN/">Flame Graph</a> by Henry Zhu (<a href="http://codepen.io/hzhu">@hzhu</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+<script async src="//assets.codepen.io/assets/embed/ei.js"></script>
+
 * A large height of the stack isn't necessiarily bad.
-* A large width of a stack frame indicates large CPU consumption and the might need to be looked into.
+* The width of a stack frame indicates the total time it was on-CPU and long stack frame might need to be looked into.
 * The colors aren't significant, and are usually picked at random to be warm colors (other meaningful palettes are supported).
 
 ### Requirements
